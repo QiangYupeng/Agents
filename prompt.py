@@ -1,16 +1,5 @@
 #!/usr/bin/env python
 # -*- coding: UTF-8 -*-
-"""=================================================
-@PROJECT_NAME: agent_example
-@File    : prompt.py
-@Author  : Liuyz
-@Date    : 2024/6/28 15:58
-@Function: 
-
-@Modify History:
-         
-@Copyright：Copyright(c) 2024-2026. All Rights Reserved
-=================================================="""
 from tools import gen_tools_desc
 
 """

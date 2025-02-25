@@ -236,7 +236,7 @@ def main_loop(model_provider):
 
 if __name__ == "__main__":
     # 初始化环境
-    os.environ['TAVILY_API_KEY'] = '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'  # 替换实际API密钥
+    os.environ['TAVILY_API_KEY'] = 'Your-key'  # 替换实际API密钥
     HISTORY_DIR.mkdir(exist_ok=True)
 
     # 启动系统

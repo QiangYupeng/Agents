@@ -1,16 +1,5 @@
 #!/usr/bin/env python
 # -*- coding: UTF-8 -*-
-"""=================================================
-@PROJECT_NAME: agent_example
-@File    : tools.py
-@Author  : Liuyz
-@Date    : 2024/6/28 14:45
-@Function: 
-    定义相关的tools
-@Modify History:
-         
-@Copyright：Copyright(c) 2024-2026. All Rights Reserved
-=================================================="""
 import json
 import os
 from langchain_community.tools.tavily_search import TavilySearchResults
@@ -37,25 +26,6 @@ def read_file(filename):
         return f"{filename} not exit, please check file exist before read"
     with open(filename, 'r', encoding="utf-8") as f:
         return "\n".join(f.readlines())
-
-
-def append_to_file(filename, content):
-    filename = os.path.join(WORKDIR_ROOT, filename)
-    if not os.path.exists(filename):
-        f"{filename} not exit, please check file exist before read"
-    with open(filename, 'a') as f:
-        f.write(content)
-    return "append_content to file success."
-
-
-def write_to_file(filename, content):
-    filename = os.path.join(WORKDIR_ROOT, filename)
-    if not os.path.exists(WORKDIR_ROOT):
-        os.makedirs(WORKDIR_ROOT)
-
-    with open(filename, 'w', encoding='utf-8') as f:
-        f.write(content)
-    return "write content to file success."
 
 
 def search(query):
@@ -102,38 +72,6 @@ tools_info = [
             }
         ]
     },
-    {
-        "name": "append_to_file",
-        "description": "append llm content to file, should write file before read",
-        "args": [
-            {
-                "name": "filename",
-                "type": "string",
-                "description": "file name"
-            },
-            {
-                "name": "content",
-                "type": "string",
-                "description": "append to file content"
-            }
-        ]
-    },
-{
-        "name": "write_to_file",
-        "description": "write llm content to file",
-        "args": [
-            {
-                "name": "filename",
-                "type": "string",
-                "description": "file name"
-            },
-            {
-                "name": "content",
-                "type": "string",
-                "description": "write to file content"
-            }
-        ]
-    },
 {
         "name": "finish",
         "description": "完成用户目标",
@@ -172,8 +110,6 @@ tools_info = [
 
 tools_map = {
     "read_file": read_file,
-    "append_to_file": append_to_file,
-    "write_to_file": write_to_file,
     "search": search
 }
 
