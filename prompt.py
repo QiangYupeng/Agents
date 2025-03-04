@@ -104,4 +104,9 @@ def gen_prompt(query, agent_scratch):
     return prompt
 
 
-user_prompt = "根据给定的目标和迄今为止取得的进展，确定下一个要执行action，并使用前面指定的JSON模式进行响应："
+def generate_user_prompt(query):
+    user_prompt = (
+        f"根据给定的目标「{query}」和迄今为止取得的进展，"
+        "确定下一个要执行的action，并使用前面指定的JSON模式进行响应："
+    )
+    return user_prompt
