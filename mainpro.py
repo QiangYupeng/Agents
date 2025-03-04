@@ -19,13 +19,16 @@ HISTORY_DIR = Path("./histories")  # 历史存储目录
 # ================== 装饰器 ==================
 def timeit(func):
     """执行耗时监控"""
+
     @wraps(func)
     def wrapper(*args, **kwargs):
         start = time.time()
         result = func(*args, **kwargs)
-        print(f"⏱️ {func.__name__} 耗时: {time.time()-start:.2f}s")
+        print(f"⏱️ {func.__name__} 耗时: {time.time() - start:.2f}s")
         return result
+
     return wrapper
+
 
 # ================== 持久化模块 ==================
 class HistoryManager:
@@ -58,11 +61,11 @@ class HistoryManager:
         """安全加载历史记录"""
         if not self.file_path.exists():
             return {'meta': None, 'records': []}
-        
+
         try:
             with open(self.file_path, 'rb') as f:
                 data = pickle.load(f)
-                
+
                 # 兼容旧版列表格式
                 if isinstance(data, list):  # 旧版数据格式
                     return {
@@ -78,9 +81,11 @@ class HistoryManager:
             print(f"⚠️ 历史加载异常: {str(e)}")
             return {'meta': None, 'records': []}
 
+
 # ================== 输入验证 ==================
 def validate_input(func):
     """输入有效性验证"""
+
     @wraps(func)
     def wrapper(question):
         while True:
@@ -88,14 +93,16 @@ def validate_input(func):
             if len(reply.strip()) >= 2:
                 return reply
             print("❌ 输入无效，至少需要2个字符")
+
     return wrapper
+
 
 # ================== 核心逻辑 ==================
 class AgentCore:
     def __init__(self, user_id):
         self.history_mgr = HistoryManager(user_id)
         self._init_state()
-        
+
     def _init_state(self):
         """初始化运行时状态"""
         self.agent_scratch = []
@@ -129,13 +136,14 @@ class AgentCore:
         tool_func = tools_map.get(action_name)
         if not tool_func:
             raise ValueError(f"未知工具: {action_name}")
-            
+
         sig = inspect.signature(tool_func)
         valid_args = {
-            k: v for k, v in args.items() 
+            k: v for k, v in args.items()
             if k in sig.parameters
         }
         return tool_func(**valid_args)
+
 
 # ================== 主程序 ==================
 @validate_input
@@ -143,27 +151,29 @@ def get_user_input(prompt):
     """获取用户输入"""
     return input(prompt)
 
+
 def main_loop(model_provider):
     """主交互循环"""
-    print("\n" + "="*40)
+    print("\n" + "=" * 40)
     print("🚀 智能助手系统已启动")
     print("🔍 可用命令：/history, /clear, exit")
-    print("="*40)
-    
+    print("=" * 40)
+
     user_id = get_user_input("🔑 请输入用户ID：")
     agent = AgentCore(user_id)
     # 显示系统信息
     print(f"\n🕒 会话开始时间: {agent.state['start_time'].strftime('%Y-%m-%d %H:%M:%S')}")
+    print("agent.chat_history: ", agent.chat_history)
     print(f"📚 加载到{len(agent.chat_history)}条历史记录")
-    
+
     while True:
         try:
             # 获取新查询
-            query = get_user_input("\n📢 请输入问题（输入exit退出）：")
-            if query.lower() == 'exit':
+            current_query = get_user_input("\n📢 请输入问题（输入exit退出）：")
+            if current_query.lower() == 'exit':
                 print("👋 感谢使用，再见！")
                 break
-            if agent.process_command(query):
+            if agent.process_command(current_query):
                 continue
 
             # 处理单次查询
@@ -174,22 +184,24 @@ def main_loop(model_provider):
                     reply = get_user_input(f"\n❓ {agent.state['pending_question']}\n💬 您的回复：")
                     if agent.process_command(reply):
                         continue
-                        
+
                     agent.chat_history.append((
-                        agent.state['pending_question'], 
+                        agent.state['pending_question'],
                         f"用户答复：{reply}"
                     ))
                     agent.state['need_input'] = False
 
                 # 生成提示
                 prompt = gen_prompt(
-                    query=query,
+                    query=current_query,
                     agent_scratch="\n".join(agent.agent_scratch)
                 )
 
+                # print(prompt)
+
                 # 调用模型
-                response = model_provider.chat(prompt, agent.chat_history)
-                
+                response = model_provider.chat(current_query, prompt, agent.chat_history)
+
                 # 解析响应
                 action = response["action"]
                 action_name = action["name"]
@@ -233,6 +245,7 @@ def main_loop(model_provider):
         except Exception as e:
             print(f"\n❌ 系统错误: {str(e)}")
             agent.history_mgr.save(agent.chat_history)
+
 
 if __name__ == "__main__":
     # 初始化环境
